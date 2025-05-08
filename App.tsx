@@ -1,9 +1,10 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Moon, Sun } from 'lucide-react';
-import { Button } from '@/components/ui/button'; // Assuming you have a Button component
-import { cn } from '@/lib/utils';     // Assuming you have a cn utility
 
-// Define the theme context
+// ===============================
+// Theme Context
+// ===============================
+
 interface ThemeContextProps {
     theme: 'light' | 'dark';
     toggleTheme: () => void;
@@ -11,7 +12,9 @@ interface ThemeContextProps {
 
 const ThemeContext = createContext<ThemeContextProps | undefined>(undefined);
 
-// Custom hook to use the theme
+// ===============================
+// Custom Hook
+// ===============================
 const useTheme = () => {
     const context = useContext(ThemeContext);
     if (!context) {
@@ -20,59 +23,79 @@ const useTheme = () => {
     return context;
 };
 
-// Theme provider component
+// ===============================
+// Theme Provider
+// ===============================
 const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [theme, setTheme] = useState<'light' | 'dark'>('light');
 
     // Load theme from localStorage
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            setTheme(savedTheme as 'light' | 'dark');
+        try {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                setTheme(savedTheme as 'light' | 'dark');
+            }
+        } catch (error) {
+            console.error("Failed to load theme from localStorage:", error);
+            // Handle error, e.g., set default theme
         }
     }, []);
 
     // Save theme to localStorage
     useEffect(() => {
-        localStorage.setItem('theme', theme);
+        try {
+            localStorage.setItem('theme', theme);
+        } catch (error) {
+            console.error("Failed to save theme to localStorage:", error);
+        }
     }, [theme]);
 
     const toggleTheme = () => {
-        setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
+        setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
     };
 
     const value = { theme, toggleTheme };
 
     return (
         <ThemeContext.Provider value={value}>
-            {children}
+            <div className={theme === 'dark' ? 'dark' : ''}>{children}</div>
         </ThemeContext.Provider>
     );
 };
 
-// Components that use the theme
+// ===============================
+// Components
+// ===============================
+
 const Navbar = () => {
     const { theme } = useTheme();
 
     return (
         <nav
-            className={cn(
-                'p-4 transition-colors duration-300',
-                theme === 'light' ? 'bg-white text-gray-800' : 'bg-gray-900 text-white'
-            )}
+            className={`p-4 transition-colors duration-300 ${theme === 'light' ? 'bg-white text-gray-800' : 'bg-gray-900 text-white'}`}
         >
             <div className="container mx-auto flex justify-between items-center">
                 <span className="font-bold text-xl">My Website</span>
                 <div className="flex gap-4">
-                    <a href="#" className={cn("px-4 py-2 rounded hover:bg-opacity-20 transition-colors",
-                        theme === 'light' ? 'text-gray-800' : 'text-white'
-                    )}>Home</a>
-                    <a href="#" className={cn("px-4 py-2 rounded hover:bg-opacity-20 transition-colors",
-                        theme === 'light' ? 'text-gray-800' : 'text-white'
-                    )}>About</a>
-                    <a href="#" className={cn("px-4 py-2 rounded hover:bg-opacity-20 transition-colors",
-                        theme === 'light' ? 'text-gray-800' : 'text-white'
-                    )}>Contact</a>
+                    <a
+                        href="#"
+                        className={`px-4 py-2 rounded hover:bg-opacity-20 transition-colors ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}
+                    >
+                        Home
+                    </a>
+                    <a
+                        href="#"
+                        className={`px-4 py-2 rounded hover:bg-opacity-20 transition-colors ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}
+                    >
+                        About
+                    </a>
+                    <a
+                        href="#"
+                        className={`px-4 py-2 rounded hover:bg-opacity-20 transition-colors ${theme === 'light' ? 'text-gray-800' : 'text-white'}`}
+                    >
+                        Contact
+                    </a>
                     <ThemeToggleButton />
                 </div>
             </div>
@@ -85,15 +108,12 @@ const Content = () => {
 
     return (
         <main
-            className={cn(
-                'p-6 min-h-[calc(100vh-12rem)] transition-colors duration-300',
-                theme === 'light' ? 'bg-gray-100 text-gray-900' : 'bg-gray-800 text-gray-100'
-            )}
+            className={`p-6 min-h-[calc(100vh-12rem)] transition-colors duration-300 ${theme === 'light' ? 'bg-gray-100 text-gray-900' : 'bg-gray-800 text-gray-100'}`}
         >
             <div className="container mx-auto">
                 <h1 className="text-3xl font-bold mb-4">Welcome!</h1>
                 <p className="mb-4">
-                    This is a themeable website.  The theme is managed using React's Context API and a custom hook.
+                    This is a themeable website. The theme is managed using React's Context API and a custom hook.
                 </p>
                 <p>
                     You can toggle between light and dark themes using the button in the Navbar.
@@ -105,13 +125,9 @@ const Content = () => {
 
 const Footer = () => {
     const { theme } = useTheme();
-
     return (
         <footer
-            className={cn(
-                'p-4 text-center transition-colors duration-300',
-                theme === 'light' ? 'bg-white text-gray-600' : 'bg-gray-900 text-gray-400'
-            )}
+            className={`p-4 text-center transition-colors duration-300 ${theme === 'light' ? 'bg-white text-gray-600' : 'bg-gray-900 text-gray-400'}`}
         >
             &copy; {new Date().getFullYear()} My Website
         </footer>
@@ -122,16 +138,11 @@ const ThemeToggleButton = () => {
     const { theme, toggleTheme } = useTheme();
 
     return (
-        <Button
-            variant="outline"
+        <button
             onClick={toggleTheme}
-            className={cn(
-                "rounded-full p-2 transition-colors",
-                theme === 'light'
-                    ? 'bg-white text-gray-700 hover:bg-gray-100'
-                    : 'bg-gray-800 text-gray-300 hover:bg-gray-700',
-                'border-0'
-            )}
+            className={`rounded-full p-2 transition-colors border-none cursor-pointer ${theme === 'light'
+                ? 'bg-white text-gray-700 hover:bg-gray-100'
+                : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`}
             aria-label="Toggle Theme"
         >
             {theme === 'light' ? (
@@ -139,7 +150,7 @@ const ThemeToggleButton = () => {
             ) : (
                 <Sun className="h-5 w-5" />
             )}
-        </Button>
+        </button>
     );
 };
 
