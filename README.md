@@ -1,4 +1,4 @@
-# Reach Theme Toggle
+# React Theme Toggle
 
 ## Project Description
 
